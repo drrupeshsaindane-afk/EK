@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "EthniKonnect",
+    "slug": "ethnikonnect",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "assetBundlePatterns": ["**/*"],
+    "platforms": ["ios", "android", "web"],
+    "scheme": "ethnikonnect",
+    "backgroundColor": "#020617"
+  }
+}
