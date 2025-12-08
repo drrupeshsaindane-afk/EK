@@ -1,47 +1,37 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, View } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { LOGO_IMAGE_URL } from "../config";
+import React, { useEffect } from "react";
+import { View, Image, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import theme from "../theme";
-import { RootStackParamList } from "../navigation/RootNavigator";
+import { LOGO_IMAGE_URL } from "../config";
 
-const SplashScreen: React.FC<NativeStackScreenProps<RootStackParamList, "Splash">> = ({
-  navigation,
-}) => {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(0.9)).current;
+const SplashScreen: React.FC = () => {
+  const navigation = useNavigation();
 
   useEffect(() => {
-    console.log("Loading logo from", LOGO_IMAGE_URL);
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 900,
-      useNativeDriver: true,
-    }).start();
+    console.log("Splash LOGO_IMAGE_URL:", LOGO_IMAGE_URL);
 
-    Animated.timing(scale, {
-      toValue: 1,
-      duration: 900,
-      useNativeDriver: true,
-    }).start();
-
-    const timeout = setTimeout(() => {
+    const timer = setTimeout(() => {
       navigation.reset({
         index: 0,
         routes: [{ name: "ProfileSelection" as never }],
       });
     }, 2200);
 
-    return () => clearTimeout(timeout);
-  }, [navigation, opacity, scale]);
+    return () => clearTimeout(timer);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
-      <Animated.Image
+      <Image
         source={{ uri: LOGO_IMAGE_URL }}
         resizeMode="contain"
-        style={[styles.logo, { opacity, transform: [{ scale }] }]}
-        onError={(e) => console.log("Failed to load logo", e.nativeEvent.error)}
+        style={styles.logo}
+        onLoad={() => {
+          console.log("Splash logo loaded successfully");
+        }}
+        onError={(e) => {
+          console.log("Splash logo failed to load", e.nativeEvent);
+        }}
       />
     </View>
   );
