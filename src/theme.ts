@@ -2,17 +2,18 @@ import { TextStyle } from "react-native";
 
 const theme = {
   colors: {
-    // Deep navy background
-    backgroundDark: "#020617",
-    // Slight variation if needed for headers/alt areas
-    backgroundAlt: "#030712",
-    // Lighter bluish-gray for cards and avatar circles so they stand out
-    cardDark: "#111827",
-    accentIndia: "#f97316",
-    accentChina: "#38bdf8",
-    textPrimary: "#f9fafb",
-    textSecondary: "#9ca3af",
-    borderSubtle: "#1f2937",
+    // Main background – rich purple
+    backgroundDark: "#680385",
+    // Slight variation for alt areas
+    backgroundAlt: "#53026A",
+    // Card / avatar background – darker, so it still stands out
+    cardDark: "#3D044F",
+    // Accents
+    accentIndia: "#FFD166",
+    accentChina: "#5FE3FF",
+    textPrimary: "#FDF4FF",
+    textSecondary: "#E9D5FF",
+    borderSubtle: "#A855F7",
   },
   spacing: {
     xs: 4,
@@ -30,19 +31,25 @@ const theme = {
 
 export type Theme = typeof theme;
 
+// Preferred font – will use system fallback if not available on device
+const baseFontFamily = "Bookman Old Style";
+
 export const heading1: TextStyle = {
+  fontFamily: baseFontFamily,
   fontSize: 26,
   fontWeight: "700",
   color: theme.colors.textPrimary,
 };
 
 export const heading2: TextStyle = {
+  fontFamily: baseFontFamily,
   fontSize: 20,
   fontWeight: "600",
   color: theme.colors.textPrimary,
 };
 
 export const bodyText: TextStyle = {
+  fontFamily: baseFontFamily,
   fontSize: 15,
   color: theme.colors.textSecondary,
 };

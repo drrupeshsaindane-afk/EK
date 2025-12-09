@@ -1,64 +1,102 @@
-import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useMemo } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getModulesByRoot } from "../data/modules";
-import theme from "../theme";
-import ModuleCard from "../components/ModuleCard";
+import theme, { heading1, heading2, bodyText } from "../theme";
 import { useRootContext } from "../context/RootContext";
+import { getModulesByRoot } from "../data/modules";
+import ModuleCard from "../components/ModuleCard";
 import { RootStackParamList } from "../navigation/RootNavigator";
 
-const profiles = ["Parent", "Child 1", "Child 2"];
+type Props = NativeStackScreenProps<RootStackParamList, "ParentHome">;
 
-const ParentHomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, "ParentHome">> = ({
-  navigation,
-}) => {
-  const { currentRoot, setCurrentProfileName } = useRootContext();
+const ParentHomeScreen: React.FC<Props> = ({ navigation }) => {
+  const {
+    currentRoot,
+    currentProfileName,
+    setCurrentProfileName,
+  } = useRootContext();
+
+  const rootLabel = useMemo(() => {
+    if (currentRoot === "india") return "India";
+    if (currentRoot === "china") return "China";
+    return "Choose a root";
+  }, [currentRoot]);
+
   const modules = currentRoot ? getModulesByRoot(currentRoot) : [];
 
+  const handleProfileSelect = (name: string) => {
+    setCurrentProfileName(name);
+  };
+
+  const handleModulePress = (moduleId: string) => {
+    navigation.navigate("ModuleDetails", { moduleId });
+  };
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.heading}>Welcome back, Parent</Text>
-      <Text style={styles.subHeading}>
-        Current root: {currentRoot ? (currentRoot === "india" ? "India" : "China") : "None"}
-      </Text>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerBlock}>
+          <Text style={[heading1, styles.headingText]}>
+            Welcome back, Parent
+          </Text>
+          {/* Root label – only "India" or "China" now */}
+          <Text style={styles.rootLabel}>{rootLabel}</Text>
+        </View>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Subscription summary</Text>
-        <Text style={styles.cardText}>Status: Active placeholder</Text>
-        <Text style={styles.cardText}>Plan: Basic</Text>
-      </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Subscription summary</Text>
+          <Text style={styles.cardLine}>Status: Active placeholder</Text>
+          <Text style={styles.cardLine}>Plan: Basic</Text>
+        </View>
 
-      <View style={styles.chipRow}>
-        {profiles.map((profile) => (
-          <Pressable
-            key={profile}
-            style={({ pressed }) => [
-              styles.chip,
-              pressed && styles.chipPressed,
-              profile === "Parent" && styles.chipActive,
-            ]}
-            onPress={() => setCurrentProfileName(profile)}
-          >
-            <Text style={styles.chipText}>{profile}</Text>
-          </Pressable>
+        <View style={styles.profileRow}>
+          {["Parent", "Child 1", "Child 2"].map((name) => {
+            const isActive = currentProfileName === name;
+            return (
+              <Pressable
+                key={name}
+                style={[
+                  styles.profileChip,
+                  isActive && styles.profileChipActive,
+                ]}
+                onPress={() => handleProfileSelect(name)}
+              >
+                <Text
+                  style={[
+                    styles.profileChipText,
+                    isActive && styles.profileChipTextActive,
+                  ]}
+                >
+                  {name}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Text style={[heading2, styles.sectionTitle]}>Modules</Text>
+
+        {modules.map((m) => (
+          <ModuleCard
+            key={m.id}
+            title={m.title}
+            subtitle={m.subtitle}
+            hasVideo={m.chapters.some((c) => c.type === "video")}
+            hasStory={m.chapters.some((c) => c.type === "story")}
+            onPress={() => handleModulePress(m.id)}
+          />
         ))}
-      </View>
-
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Modules</Text>
-      </View>
-
-      {modules.map((module) => (
-        <ModuleCard
-          key={module.id}
-          title={module.title}
-          subtitle={module.subtitle}
-          hasStory={module.chapters.some((c) => c.type === "story")}
-          hasVideo={module.chapters.some((c) => c.type === "video")}
-          onPress={() => navigation.navigate("ModuleDetails", { moduleId: module.id })}
-        />
-      ))}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -67,68 +105,61 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.backgroundDark,
   },
-  content: {
-    padding: theme.spacing.lg,
+  scrollContent: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.xl,
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: theme.colors.textPrimary,
-  },
-  subHeading: {
-    fontSize: 16,
-    color: theme.colors.textSecondary,
+  headerBlock: {
     marginBottom: theme.spacing.lg,
+  },
+  headingText: {
+    marginBottom: theme.spacing.sm,
+  },
+  rootLabel: {
+    ...bodyText,
+    color: theme.colors.textSecondary,
   },
   card: {
     backgroundColor: theme.colors.cardDark,
-    borderRadius: theme.radii.md,
-    padding: theme.spacing.md,
+    borderRadius: theme.radii.lg,
+    padding: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.borderSubtle,
   },
   cardTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 16,
-    fontWeight: "700",
+    ...heading2,
     marginBottom: theme.spacing.sm,
   },
-  cardText: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
+  cardLine: {
+    ...bodyText,
   },
-  chipRow: {
+  profileRow: {
     flexDirection: "row",
+    justifyContent: "flex-start",
+    gap: theme.spacing.sm,
     marginBottom: theme.spacing.lg,
   },
-  chip: {
-    backgroundColor: theme.colors.backgroundAlt,
-    paddingVertical: theme.spacing.sm,
+  profileChip: {
+    borderRadius: 999,
     paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radii.md,
-    marginRight: theme.spacing.sm,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.backgroundAlt,
     borderWidth: 1,
     borderColor: theme.colors.borderSubtle,
   },
-  chipActive: {
-    backgroundColor: theme.colors.cardDark,
+  profileChipActive: {
+    backgroundColor: theme.colors.accentIndia,
+    borderColor: theme.colors.accentIndia,
   },
-  chipPressed: {
-    opacity: 0.8,
-  },
-  chipText: {
+  profileChipText: {
+    ...bodyText,
     color: theme.colors.textSecondary,
-    fontSize: 14,
-    fontWeight: "600",
   },
-  sectionHeader: {
-    marginBottom: theme.spacing.sm,
+  profileChipTextActive: {
+    color: "#1F2933",
   },
   sectionTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 18,
-    fontWeight: "700",
+    marginBottom: theme.spacing.md,
   },
 });
 
